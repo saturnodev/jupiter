@@ -1,0 +1,26 @@
+:root {
+  // Paleta code.html
+  --primary: #6f06f9;
+  --synth-magenta: #ff00ff;
+  --synth-cyan: #00ffff;
+  --synth-purple: #7000ff;
+  --background-dark: #0d0221;
+  --glass-border: #33214a;
+
+  // Colores auxiliares
+  --synth-primary: #6f06f9;
+  --synth-secondary: #00ffff;
+  --synth-accent: #b388ff;
+  --synth-bg-dark: #0d0221;
+  --synth-bg-card: #1a0b2e;
+  --synth-text: #e0e0e0;
+  --synth-text-muted: #9e9e9e;
+
+  // Gradientes
+  --synth-gradient-main: linear-gradient(135deg, #6f06f9 0%, #00ffff 50%, #ff00ff 100%);
+  --synth-gradient-card: linear-gradient(180deg, rgba(112, 0, 255, 0.1) 0%, transparent 100%);
+
+  // Sombras neón
+  --synth-glow-pink: 0 0 20px rgba(255, 0, 255, 0.5);
+  --synth-glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
+}

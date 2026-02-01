@@ -10,6 +10,100 @@ Jupiter es un chatbot que usa **RAG** (Retrieval Augmented Generation) y un mode
 
 ---
 
+## Instalación
+
+### Requisitos previos
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2 o superior)
+- ~6 GB RAM libre (el stack está limitado a ~6 GB total)
+
+### Pasos
+
+1. **Clonar el repositorio**
+
+   ```bash
+   git clone <url-repositorio>
+   cd jupiter
+   ```
+
+2. **Configurar variables de entorno**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Opcionalmente edita `.env` para ajustar valores (contraseñas, puertos, etc.).
+
+3. **Iniciar el stack**
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   O en modo detached: `docker-compose up --build -d`
+
+### URLs
+
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:4200 |
+| Backend API | http://localhost:8000 |
+| Health check | http://localhost:8000/health |
+
+### Modelos Ollama
+
+Para que RAG funcione, descarga los modelos tras iniciar el stack:
+
+```bash
+./docker/init-ollama.sh
+```
+
+O manualmente:
+
+```bash
+docker exec jupiter-ollama-1 ollama pull nomic-embed-text
+docker exec jupiter-ollama-1 ollama pull llama3.2:3b
+```
+
+El nombre del contenedor puede variar (`jupiter-ollama-1` es el típico). Lista contenedores: `docker ps`.
+
+### Variables de entorno
+
+Copia `.env.example` a `.env` y ajusta según necesidad. Ver [.env.example](.env.example) para la lista completa de variables (Ollama, Qdrant, PostgreSQL, límites, etc.). **No versiones `.env`** — contiene secretos; está en `.gitignore`.
+
+### Ejemplos de uso con docker-compose
+
+```bash
+# Iniciar en segundo plano
+docker-compose up -d
+
+# Ver logs del backend
+docker-compose logs -f backend
+
+# Ver modelos Ollama instalados
+docker exec jupiter-ollama-1 ollama list
+
+# Detener todo
+docker-compose down
+
+# Detener y eliminar volúmenes (borra datos)
+docker-compose down -v
+```
+
+### Notas
+
+- **Primera ejecución:** Ollama puede tardar más de 60 segundos en arrancar la primera vez al descargar los modelos. Las ejecuciones posteriores serán más rápidas.
+- **RAM:** El stack está limitado a ~6 GB total. Ver sección [Infraestructura](#infraestructura).
+
+---
+
+## Verificación E2E
+
+Checklist manual de flujos críticos: [docs/E2E_CHECKLIST.md](docs/E2E_CHECKLIST.md)
+
+---
+
 ## Visión y Alcance (v1 MVP)
 
 | Aspecto | Decisión |
@@ -108,11 +202,6 @@ Por cada conversación (notebook):
 
 ---
 
-## Próximos Pasos
+## Licencia
 
-1. Definir estructura de carpetas del proyecto
-2. Configurar `docker-compose` con los servicios
-3. Desarrollar backend (APIs, loaders de documentos, pipeline RAG)
-4. Desarrollar frontend Angular (chat, subida de archivos)
-5. Integrar streaming de respuestas
-6. Documentar variables de entorno necesarias
+Jupiter es open source bajo la [Apache License 2.0](LICENSE).
