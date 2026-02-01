@@ -39,7 +39,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2.5G
+          memory: 3.5G
+          cpus: "2"
 
   backend:
     build:

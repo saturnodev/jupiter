@@ -1,8 +1,9 @@
 from uuid import UUID
 
+from sqlalchemy import or_, exists
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Conversation
+from app.models import Conversation, Message, Source
 
 
 def create(db: Session, title: str = "Nueva conversación") -> Conversation:
@@ -13,8 +14,13 @@ def create(db: Session, title: str = "Nueva conversación") -> Conversation:
     return conversation
 
 
-def list_all(db: Session) -> list[Conversation]:
-    return db.query(Conversation).order_by(Conversation.updated_at.desc()).all()
+def list_all(db: Session, used_only: bool = True) -> list[Conversation]:
+    q = db.query(Conversation).order_by(Conversation.updated_at.desc())
+    if used_only:
+        has_message = exists().where(Message.conversation_id == Conversation.id)
+        has_source = exists().where(Source.conversation_id == Conversation.id)
+        q = q.filter(or_(has_message, has_source))
+    return q.all()
 
 
 def get_by_id(db: Session, conversation_id: UUID) -> Conversation | None:

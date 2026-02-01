@@ -6,6 +6,7 @@ Checklist manual para validar los flujos críticos del proyecto Jupiter tras eje
 
 - [ ] `cp .env.example .env` ejecutado
 - [ ] `docker-compose up --build` completado sin errores
+- [ ] Acceso por **http://localhost:4200** (no usar puerto 80 ni URL incorrecta)
 - [ ] Modelos Ollama descargados: `./docker/init-ollama.sh`
 - [ ] Backend health OK: `curl http://localhost:8000/health` → `{"status":"ok"}`
 - [ ] Frontend accesible: abrir http://localhost:4200

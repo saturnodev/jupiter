@@ -57,6 +57,8 @@ def chat_stream(
                 yield "\n"
         except ValueError as e:
             yield f"data: Error: {e}\n\n"
+        except Exception as e:
+            yield f"data: Error inesperado: {e}\n\n"
 
     return StreamingResponse(
         generate(),

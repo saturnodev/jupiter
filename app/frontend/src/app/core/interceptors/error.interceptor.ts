@@ -2,7 +2,7 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 
 const NETWORK_ERROR_MSG =
-  'Error de conexión. Verifica que el backend esté disponible.';
+  'Error de conexión con el backend. Verifica que Docker esté levantado (docker-compose up) y que accedes por http://localhost:4200';
 
 function getErrorMessage(err: HttpErrorResponse): string {
   if (err.status === 0) {
@@ -29,7 +29,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
       const message = getErrorMessage(err);
-      console.error('HTTP error:', err.status, message);
+      console.error('HTTP error:', err.status, message, '(URL:', err.url ?? req.url, ')');
       return throwError(() => new Error(message));
     })
   );

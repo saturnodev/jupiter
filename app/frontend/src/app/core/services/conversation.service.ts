@@ -2,14 +2,14 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { getApiUrl } from '../utils/api-url';
 import type { Conversation } from '../models/conversation.model';
 import type { ConversationDetail } from '../models/conversation-detail.model';
 
 @Injectable({ providedIn: 'root' })
 export class ConversationService {
-  private readonly baseUrl = `${environment.apiUrl}/conversations`;
-  private readonly baseUrlSlash = `${environment.apiUrl}/conversations/`;
+  private readonly baseUrl = `${getApiUrl()}/conversations`;
+  private readonly baseUrlSlash = `${getApiUrl()}/conversations/`;
 
   private _conversations = signal<Conversation[]>([]);
   private _loading = signal(false);

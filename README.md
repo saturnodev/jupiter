@@ -51,6 +51,8 @@ Jupiter es un chatbot que usa **RAG** (Retrieval Augmented Generation) y un mode
 | Backend API | http://localhost:8000 |
 | Health check | http://localhost:8000/health |
 
+**Importante:** Accede siempre por **http://localhost:4200**. El frontend sirve las peticiones API bajo `/api` y las envía al backend. Si ves "Error de conexión", verifica que Docker esté levantado (`docker-compose up`) y que usas la URL correcta.
+
 ### Modelos Ollama
 
 Para que RAG funcione, descarga los modelos tras iniciar el stack:
@@ -67,6 +69,8 @@ docker exec jupiter-ollama-1 ollama pull llama3.2:3b
 ```
 
 El nombre del contenedor puede variar (`jupiter-ollama-1` es el típico). Lista contenedores: `docker ps`.
+
+**Memoria y CPU de Ollama:** El modelo `llama3.2:3b` requiere ~2.3 GiB para cargar. Ollama está limitado a 2 CPUs en `docker-compose.yml` para no saturar la máquina. Si necesitas más rendimiento, aumenta `cpus` en el servicio ollama. El contenedor Ollama tiene 3.5G asignados (ver `docker-compose.yml`). Si ves error "500 Internal Server Error" o "model requires more system memory" al hacer preguntas en el chat, verifica que tengas suficiente RAM disponible. Alternativa: usar un modelo más ligero (`llama3.2:1b`) ajustando `OLLAMA_MODEL` en `.env`.
 
 ### Variables de entorno
 
@@ -94,7 +98,8 @@ docker-compose down -v
 ### Notas
 
 - **Primera ejecución:** Ollama puede tardar más de 60 segundos en arrancar la primera vez al descargar los modelos. Las ejecuciones posteriores serán más rápidas.
-- **RAM:** El stack está limitado a ~6 GB total. Ver sección [Infraestructura](#infraestructura).
+- **RAM:** El stack está limitado a ~6 GB total (Ollama 3.5G, backend 1G, resto ~1.3G). Ver sección [Infraestructura](#infraestructura).
+- **Error 500 en chat:** Si Ollama responde "500 Internal Server Error" o "model requires more system memory", comprueba `docker-compose logs ollama`. Suele deberse a falta de RAM para cargar `llama3.2:3b`. Solución: reiniciar con `docker-compose down && docker-compose up -d` o usar un modelo más ligero (`OLLAMA_MODEL=llama3.2:1b`).
 
 ---
 
@@ -175,11 +180,13 @@ Por cada conversación (notebook):
 
 ### Servicios Docker
 
-- Backend (FastAPI)
-- Frontend (Angular)
-- Ollama
-- Qdrant
-- PostgreSQL
+| Servicio | Memoria | Descripción |
+|----------|---------|-------------|
+| Backend | 1G | FastAPI |
+| Frontend | 256M | Angular + nginx |
+| Ollama | 3.5G, 2 CPUs | LLM y embeddings (llama3.2:3b requiere ~2.3 GiB) |
+| Qdrant | 512M | Base vectorial |
+| PostgreSQL | 512M | Base de datos |
 
 ---
 

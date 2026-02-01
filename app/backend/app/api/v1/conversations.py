@@ -21,8 +21,9 @@ def create_conversation(
 
 
 @router.get("/", response_model=list[ConversationResponse])
-def list_conversations(db: Session = Depends(get_db)):
-    return list_all(db)
+def list_conversations(used_only: bool = True, db: Session = Depends(get_db)):
+    """List conversations. By default only returns used ones (with messages or sources)."""
+    return list_all(db, used_only=used_only)
 
 
 @router.get("/{conversation_id}", response_model=ConversationDetail)

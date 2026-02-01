@@ -1,12 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { getApiUrl } from '../utils/api-url';
 import type { Source } from '../models/source.model';
 
 @Injectable({ providedIn: 'root' })
 export class SourceService {
-  private readonly baseUrl = (id: string) => `${environment.apiUrl}/conversations/${id}/sources`;
+  private readonly baseUrl = (id: string) => `${getApiUrl()}/conversations/${id}/sources`;
 
   private _sources = signal<Source[]>([]);
   private _loading = signal(false);
@@ -19,7 +19,7 @@ export class SourceService {
   loadSources(conversationId: string): void {
     this._loading.set(true);
     this.http
-      .get<Source[]>(this.baseUrl(conversationId))
+      .get<Source[]>(`${this.baseUrl(conversationId)}/`)
       .pipe(
         tap((list) => {
           this._sources.set(list);

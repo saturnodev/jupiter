@@ -26,19 +26,34 @@ import type { Conversation } from '../../../core/models/conversation.model';
           <p class="text-sm text-gray-500 px-3">Cargando...</p>
         } @else if (conversations().error) {
           <p class="text-sm text-red-400 px-3">{{ conversations().error }}</p>
+        } @else if (conversations().items.length === 0) {
+          <p class="text-xs text-gray-500 px-3 py-2">Crea tu primera conversación</p>
         } @else {
           @for (conv of conversations().items; track conv.id) {
-            <button
-              (click)="selectConversation(conv.id)"
+            <div
               [ngClass]="{
                 'bg-synth-purple/10 border-synth-purple/30': currentId() === conv.id,
                 'border-transparent': currentId() !== conv.id
               }"
-              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 border transition-colors group cursor-pointer text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-synth-cyan"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 border transition-colors group cursor-pointer text-left focus-within:outline focus-within:outline-2 focus-within:outline-synth-cyan"
             >
-              <span class="material-symbols-outlined text-sm text-gray-400 group-hover:text-synth-cyan shrink-0">description</span>
-              <span class="text-sm text-gray-400 group-hover:text-gray-200 truncate flex-1 min-w-0">{{ conv.title }}</span>
-            </button>
+              <button
+                type="button"
+                (click)="selectConversation(conv.id)"
+                class="flex items-center gap-3 flex-1 min-w-0"
+              >
+                <span class="material-symbols-outlined text-sm text-gray-400 group-hover:text-synth-cyan shrink-0">description</span>
+                <span class="text-sm text-gray-400 group-hover:text-gray-200 truncate flex-1 min-w-0">{{ conv.title }}</span>
+              </button>
+              <button
+                type="button"
+                (click)="deleteConversation(conv.id); $event.stopPropagation()"
+                class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-red-400 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-synth-cyan rounded shrink-0"
+                aria-label="Eliminar conversación"
+              >
+                <span class="material-symbols-outlined text-sm">delete</span>
+              </button>
+            </div>
           }
         }
       </div>
@@ -72,5 +87,19 @@ export class ConversationListComponent implements OnInit {
 
   selectConversation(id: string): void {
     this.router.navigate(['/conversations', id]);
+  }
+
+  deleteConversation(id: string): void {
+    this.convService.deleteConversation(id).subscribe({
+      next: () => {
+        this.convService.loadConversations();
+        if (this.currentId() === id) {
+          this.router.navigate(['/']);
+        }
+      },
+      error: () => {
+        this.convService.loadConversations();
+      },
+    });
   }
 }
