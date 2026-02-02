@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # Ollama
     ollama_url: str = "http://ollama:11434"
-    ollama_model: str = "llama3.2:3b"
+    ollama_model: str = "llama3.2:1b"
     ollama_embedding_model: str = "nomic-embed-text"
     ollama_timeout: float = 120.0
 
@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     rag_history_limit: int = 10
     rag_chunk_size: int = 800
     rag_chunk_overlap: int = 100
+    embed_batch_size: int = 15  # chunks per Ollama embed request (evita timeout en PDFs grandes)
 
     # Logging
     log_level: str = "INFO"

@@ -14,16 +14,43 @@ NO_SOURCES_MSG = (
     "Sube archivos (PDF, TXT, MD, DOCX, etc.) o añade una URL para poder responder preguntas basándome en ellos."
 )
 
+GREETING_RESPONSE = (
+    "¡Hola! Encantado de ayudarte. Tengo acceso a los documentos que anexaste; "
+    "pregúntame lo que quieras sobre ellos y te respondo en base a su contenido."
+)
+
+_SALUDOS = (
+    "hola", "holi", "hey", "hi", "hello", "buenos días", "buenas tardes", "buenas noches",
+    "qué tal", "que tal", "qué hubo", "como estas", "cómo estás", "saludos", "buena",
+)
+
+
+def _is_greeting(question: str) -> bool:
+    q = question.strip().lower()
+    if not q or len(q) > 80:
+        return False
+    if q in _SALUDOS:
+        return True
+    # Frases cortas que son solo saludo
+    if q.startswith(("hola ", "hola,", "buenos días", "buenas tardes", "buenas noches", "qué tal", "que tal")):
+        return True
+    return False
+
 
 def _build_prompt(
     context: str,
     history: str,
     question: str,
 ) -> str:
-    return f"""Eres un asistente que responde únicamente basándote en el contexto proporcionado.
-Si la información no está en el contexto, di que no puedes responder con esa información.
+    return f"""Eres un asistente amable que responde en español usando solo el siguiente contexto (documentos anexados por el usuario).
 
-Contexto:
+Reglas:
+- Sé siempre amable. Si el usuario te saluda (hola, buenos días, qué tal, etc.), responde primero al saludo de forma cordial y breve, y di que puedes responder preguntas sobre sus documentos; es el inicio de la conversación.
+- Si preguntan "de qué tratan mis fuentes" o similar, resume brevemente el contenido del contexto.
+- Para otras preguntas, responde solo con base en el contexto. Si algo no está en el contexto, dilo brevemente.
+- No des disclaimers largos ni digas que "no puedes proporcionar asistencia". Responde de forma directa y útil.
+
+Contexto (contenido de los documentos):
 {context}
 
 Historial de la conversación:
@@ -57,6 +84,9 @@ def ask(
 
     if not conversation.sources:
         return (NO_SOURCES_MSG, None)
+
+    if _is_greeting(question):
+        return (GREETING_RESPONSE, None)
 
     query_vector = embed(question)
     chunks = search_chunks(str(conversation_id), query_vector)
@@ -100,6 +130,10 @@ def ask_stream(
 
     if not conversation.sources:
         yield NO_SOURCES_MSG
+        return
+
+    if _is_greeting(question):
+        yield GREETING_RESPONSE
         return
 
     query_vector = embed(question)

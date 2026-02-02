@@ -30,9 +30,23 @@ import type { Source } from '../../../core/models/source.model';
               <span class="material-symbols-outlined">upload_file</span>
             }
           </div>
-          <div class="text-center">
-            <p class="text-xs font-bold text-gray-200 uppercase">{{ uploading() ? 'Subiendo...' : 'Añadir fuente' }}</p>
-            <p class="text-[10px] text-gray-500 mt-1">PDF, DOCX, TXT, MD, Excel, PPT</p>
+          <div class="text-center w-full">
+            <p class="text-xs font-bold text-gray-200 uppercase">
+              {{ uploading() ? (uploadProgress() >= 100 ? 'Procesando...' : 'Subiendo...') : 'Añadir fuente' }}
+            </p>
+            @if (uploading()) {
+              <div class="mt-2 w-full bg-glass-border rounded-full h-2 overflow-hidden">
+                <div
+                  class="h-full bg-synth-cyan transition-all duration-300 ease-out"
+                  [style.width.%]="uploadProgress() >= 100 ? 100 : uploadProgress()"
+                ></div>
+              </div>
+              <p class="text-[10px] text-gray-500 mt-1">
+                {{ uploadProgress() >= 100 ? 'Extrayendo texto e indexando...' : uploadProgress() + '%' }}
+              </p>
+            } @else {
+              <p class="text-[10px] text-gray-500 mt-1">PDF, DOCX, TXT, MD, Excel, PPT</p>
+            }
           </div>
         </div>
         <div class="flex gap-2 mt-3">
@@ -74,6 +88,7 @@ export class SourceUploadComponent {
   sourcesUploaded = output<Source[]>();
 
   uploading = signal(false);
+  uploadProgress = signal(0);
   error = signal<string | null>(null);
 
   constructor(private sourceService: SourceService) {}
@@ -121,15 +136,18 @@ export class SourceUploadComponent {
     const id = this.conversationId();
     if (!id) return;
     this.uploading.set(true);
+    this.uploadProgress.set(0);
     this.error.set(null);
-    this.sourceService.uploadFiles(id, files).subscribe({
+    this.sourceService.uploadFiles(id, files, (percent) => this.uploadProgress.set(percent)).subscribe({
       next: (sources) => {
         this.uploading.set(false);
+        this.uploadProgress.set(0);
         this.sourceService.loadSources(id);
         this.sourcesUploaded.emit(sources);
       },
       error: (err) => {
         this.uploading.set(false);
+        this.uploadProgress.set(0);
         this.error.set(err?.error?.detail || err?.message || 'Error al subir');
       },
     });
@@ -139,15 +157,18 @@ export class SourceUploadComponent {
     const id = this.conversationId();
     if (!id) return;
     this.uploading.set(true);
+    this.uploadProgress.set(0);
     this.error.set(null);
-    this.sourceService.uploadFolder(id, files).subscribe({
+    this.sourceService.uploadFolder(id, files, (percent) => this.uploadProgress.set(percent)).subscribe({
       next: (sources) => {
         this.uploading.set(false);
+        this.uploadProgress.set(0);
         this.sourceService.loadSources(id);
         this.sourcesUploaded.emit(sources);
       },
       error: (err) => {
         this.uploading.set(false);
+        this.uploadProgress.set(0);
         this.error.set(err?.error?.detail || err?.message || 'Error al subir carpeta');
       },
     });

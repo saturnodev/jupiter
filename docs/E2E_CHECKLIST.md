@@ -67,5 +67,5 @@ curl http://localhost:8000/health
 ## Notas
 
 - La primera ejecución puede tardar más por descarga de modelos Ollama.
-- Si el chat no responde o da error, verificar que `nomic-embed-text` y `llama3.2:3b` estén instalados.
+- Si el chat no responde o da error, verificar que `nomic-embed-text` y `llama3.2:1b` estén instalados.
 - Si la subida falla, revisar límites en `.env` (MAX_FILE_SIZE_MB, MAX_FILES_PER_CONVERSATION).

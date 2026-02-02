@@ -8,7 +8,7 @@ set -e
 
 OLLAMA_CONTAINER="${OLLAMA_CONTAINER:-jupiter-ollama-1}"
 EMBED_MODEL="${EMBED_MODEL:-nomic-embed-text}"
-LLM_MODEL="${LLM_MODEL:-llama3.2:3b}"
+LLM_MODEL="${LLM_MODEL:-llama3.2:1b}"
 
 echo "Jupiter: Inicializando modelos Ollama en contenedor $OLLAMA_CONTAINER"
 echo ""

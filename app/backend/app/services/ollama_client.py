@@ -33,22 +33,28 @@ class OllamaClient:
             return embeddings[0]
 
     def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Generate embeddings for multiple texts. Ollama accepts array input."""
+        """Generate embeddings for multiple texts. Processes in batches to avoid timeout on large PDFs."""
         if not texts:
             return []
+        batch_size = getattr(settings, "embed_batch_size", 15)
+        batch_size = max(1, batch_size)
+        all_embeddings: list[list[float]] = []
         with httpx.Client(timeout=self.timeout) as client:
-            response = client.post(
-                f"{self.base_url}/api/embed",
-                json={"model": self.embedding_model, "input": texts},
-            )
-            response.raise_for_status()
-            data = response.json()
-            embeddings = data.get("embeddings", [])
-            if len(embeddings) != len(texts):
-                raise ValueError(
-                    f"Ollama returned {len(embeddings)} embeddings for {len(texts)} texts"
+            for i in range(0, len(texts), batch_size):
+                batch_texts = texts[i : i + batch_size]
+                response = client.post(
+                    f"{self.base_url}/api/embed",
+                    json={"model": self.embedding_model, "input": batch_texts},
                 )
-            return embeddings
+                response.raise_for_status()
+                data = response.json()
+                embeddings = data.get("embeddings", [])
+                if len(embeddings) != len(batch_texts):
+                    raise ValueError(
+                        f"Ollama returned {len(embeddings)} embeddings for {len(batch_texts)} texts"
+                    )
+                all_embeddings.extend(embeddings)
+        return all_embeddings
 
     def generate(self, prompt: str) -> str:
         """Generate text. Returns full response (no streaming)."""

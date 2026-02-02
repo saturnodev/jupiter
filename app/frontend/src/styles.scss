@@ -16,6 +16,12 @@ body {
   overflow: hidden;
 }
 
+/* Routed views fill viewport (height from app.component) */
+router-outlet {
+  display: block;
+  min-height: 0;
+}
+
 .glass-panel {
   @apply bg-background-dark/60 backdrop-blur-xl border-glass-border;
 }

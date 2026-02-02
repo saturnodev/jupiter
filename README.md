@@ -65,12 +65,12 @@ O manualmente:
 
 ```bash
 docker exec jupiter-ollama-1 ollama pull nomic-embed-text
-docker exec jupiter-ollama-1 ollama pull llama3.2:3b
+docker exec jupiter-ollama-1 ollama pull llama3.2:1b
 ```
 
 El nombre del contenedor puede variar (`jupiter-ollama-1` es el típico). Lista contenedores: `docker ps`.
 
-**Memoria y CPU de Ollama:** El modelo `llama3.2:3b` requiere ~2.3 GiB para cargar. Ollama está limitado a 2 CPUs en `docker-compose.yml` para no saturar la máquina. Si necesitas más rendimiento, aumenta `cpus` en el servicio ollama. El contenedor Ollama tiene 3.5G asignados (ver `docker-compose.yml`). Si ves error "500 Internal Server Error" o "model requires more system memory" al hacer preguntas en el chat, verifica que tengas suficiente RAM disponible. Alternativa: usar un modelo más ligero (`llama3.2:1b`) ajustando `OLLAMA_MODEL` en `.env`.
+**Memoria y CPU de Ollama:** El modelo por defecto es `llama3.2:1b` (más rápido que 3b). Ollama está limitado a 4 CPUs. El contenedor tiene 3.5G asignados. Si ves error "500" o "model requires more system memory", prueba `OLLAMA_MODEL=phi3:mini` en `.env`.
 
 ### Variables de entorno
 
@@ -99,7 +99,7 @@ docker-compose down -v
 
 - **Primera ejecución:** Ollama puede tardar más de 60 segundos en arrancar la primera vez al descargar los modelos. Las ejecuciones posteriores serán más rápidas.
 - **RAM:** El stack está limitado a ~6 GB total (Ollama 3.5G, backend 1G, resto ~1.3G). Ver sección [Infraestructura](#infraestructura).
-- **Error 500 en chat:** Si Ollama responde "500 Internal Server Error" o "model requires more system memory", comprueba `docker-compose logs ollama`. Suele deberse a falta de RAM para cargar `llama3.2:3b`. Solución: reiniciar con `docker-compose down && docker-compose up -d` o usar un modelo más ligero (`OLLAMA_MODEL=llama3.2:1b`).
+- **Error 500 en chat o se queda en "Escribiendo...":** Comprueba `docker-compose logs ollama`. Si es falta de RAM: reinicia con `docker-compose down && docker-compose up -d`. Si es lentitud: prueba `OLLAMA_MODEL=phi3:mini` en `.env` (tras `ollama pull phi3:mini`).
 
 ---
 
@@ -168,7 +168,7 @@ Por cada conversación (notebook):
 ## Modelo Ollama
 
 - **Variable de entorno:** `OLLAMA_MODEL`
-- **Valor por defecto:** `llama3.2:3b` (modelo ligero pero suficiente para RAG)
+- **Valor por defecto:** `llama3.2:1b` (modelo ligero, rápido en CPU)
 
 ---
 
@@ -184,7 +184,7 @@ Por cada conversación (notebook):
 |----------|---------|-------------|
 | Backend | 1G | FastAPI |
 | Frontend | 256M | Angular + nginx |
-| Ollama | 3.5G, 2 CPUs | LLM y embeddings (llama3.2:3b requiere ~2.3 GiB) |
+| Ollama | 3.5G, 4 CPUs | LLM y embeddings (llama3.2:1b por defecto) |
 | Qdrant | 512M | Base vectorial |
 | PostgreSQL | 512M | Base de datos |
 

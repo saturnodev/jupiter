@@ -94,7 +94,7 @@ export class ConversationListComponent implements OnInit {
       next: () => {
         this.convService.loadConversations();
         if (this.currentId() === id) {
-          this.router.navigate(['/']);
+          this.router.navigate(['/conversations']);
         }
       },
       error: () => {

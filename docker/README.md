@@ -52,7 +52,7 @@ O manualmente:
 
 ```bash
 docker exec jupiter-ollama-1 ollama pull nomic-embed-text
-docker exec jupiter-ollama-1 ollama pull llama3.2:3b
+docker exec jupiter-ollama-1 ollama pull llama3.2:1b
 ```
 
 El nombre del contenedor puede variar (`jupiter-ollama-1` es el típico). Lista contenedores: `docker ps`.

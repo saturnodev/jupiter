@@ -1,4 +1,4 @@
-import { Component, input, OnInit, effect, signal, computed, inject } from '@angular/core';
+import { Component, input, OnInit, effect, signal, computed, inject, NgZone } from '@angular/core';
 import { ChatMessagesComponent } from './chat-messages/chat-messages.component';
 import { ChatInputComponent } from './chat-input/chat-input.component';
 import { ConversationService } from '../../core/services/conversation.service';
@@ -44,6 +44,7 @@ export class ChatComponent implements OnInit {
 
   private convService = inject(ConversationService);
   private chatService = inject(ChatService);
+  private ngZone = inject(NgZone);
 
   private _messages = signal<DisplayMessage[]>([]);
   private _streaming = signal(false);
@@ -101,33 +102,37 @@ export class ChatComponent implements OnInit {
 
     this.chatService.sendMessageStream(id, content).subscribe({
       next: (chunk) => {
-        this._messages.update((list) => {
-          const idx = list.findIndex((m) => m.id === 'streaming');
-          if (idx >= 0) {
-            const copy = [...list];
-            copy[idx] = { ...copy[idx], content: copy[idx].content + chunk };
-            return copy;
-          }
-          return list;
+        this.ngZone.run(() => {
+          this._messages.update((list) => {
+            const idx = list.findIndex((m) => m.id === 'streaming');
+            if (idx >= 0) {
+              const copy = [...list];
+              copy[idx] = { ...copy[idx], content: copy[idx].content + chunk };
+              return copy;
+            }
+            return list;
+          });
         });
       },
       error: (err) => {
-        this._messages.update((list) => {
-          const idx = list.findIndex((m) => m.id === 'streaming');
-          if (idx >= 0) {
-            const copy = [...list];
-            copy[idx] = {
-              ...copy[idx],
-              content: copy[idx].content || `Error: ${err?.message || 'Error de conexión'}`,
-            };
-            return copy;
-          }
-          return list;
+        this.ngZone.run(() => {
+          this._messages.update((list) => {
+            const idx = list.findIndex((m) => m.id === 'streaming');
+            if (idx >= 0) {
+              const copy = [...list];
+              copy[idx] = {
+                ...copy[idx],
+                content: copy[idx].content || `Error: ${err?.message || 'Error de conexión'}`,
+              };
+              return copy;
+            }
+            return list;
+          });
+          this._streaming.set(false);
         });
-        this._streaming.set(false);
       },
       complete: () => {
-        this._streaming.set(false);
+        this.ngZone.run(() => this._streaming.set(false));
       },
     });
   }

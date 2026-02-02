@@ -446,7 +446,7 @@ CREATE INDEX idx_sources_conversation ON sources(conversation_id);
 
 ### 8.2 Modelos por defecto
 
-- **LLM:** `llama3.2:3b` (variable `OLLAMA_MODEL`)
+- **LLM:** `llama3.2:1b` (variable `OLLAMA_MODEL`)
 - **Embeddings:** `nomic-embed-text` (variable `OLLAMA_EMBEDDING_MODEL` recomendada)
 
 ### 8.3 Buenas prácticas Ollama
@@ -463,7 +463,7 @@ CREATE INDEX idx_sources_conversation ON sources(conversation_id);
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
 | `OLLAMA_URL` | URL base de Ollama | `http://ollama:11434` |
-| `OLLAMA_MODEL` | Modelo LLM | `llama3.2:3b` |
+| `OLLAMA_MODEL` | Modelo LLM | `llama3.2:1b` |
 | `OLLAMA_EMBEDDING_MODEL` | Modelo embeddings | `nomic-embed-text` |
 | `QDRANT_HOST` | Host Qdrant | `qdrant` |
 | `QDRANT_PORT` | Puerto Qdrant | `6333` |
@@ -493,7 +493,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2.5G    # LLM (llama3.2:3b ~2GB)
+          memory: 2.5G    # LLM (llama3.2:1b ~1.3GB)
   postgres:
     deploy:
       resources:
@@ -543,7 +543,7 @@ Ajustar según necesidades; mantener suma ≤ 6 GB para máquinas con RAM limita
 
 - **Objetivo:** Ejecución fluida en computadora local sin agotar recursos
 - Configurar `deploy.resources.limits.memory` en cada servicio de `docker-compose`
-- Ollama es el mayor consumidor (~2–2.5 GB para llama3.2:3b); priorizar su límite
+- Ollama es el mayor consumidor (~1.3–2 GB para llama3.2:1b); priorizar su límite
 - Mantener el total del stack ≤ 6 GB para que el host siga usable
 
 ### 10.4 Logging
